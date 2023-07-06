@@ -5,7 +5,7 @@ import './App.css';
 
 const CLIENT_ID = 'f5bbf7f8ab8b4462af66203517fdc02b';
 const CLIENT_SECRET = 'accef1018284493d8bf41ef49f142d7f';
-const REDIRECT_URI = 'http://localhost:3000/callback';
+const REDIRECT_URI = 'chromatify.vercel.app/callback';
 const SCOPES = 'user-top-read';
 var urlCode = null;
 
@@ -247,11 +247,11 @@ const App = () => {
 
   return (
     <div className="App">
-      <h1 className="app-title">Aesthetify</h1>
+      <h1 className="app-title">Chromatify</h1>
       {!accessToken && (
         <div className="info-text">
-          <h3>What is Aesthetify?</h3>
-          <h4>Aesthetify is a tool that displays the color aesthetic of a your most listened songs in a given time frame (last month, last 6 months, and all time). You will get a blended color aesthetic based on the colors of the album covers of your most listened songs. </h4>
+          <h3>What is Chromatify?</h3>
+          <h4>Chromatify is a tool that displays the color aesthetic of a your most listened songs in a given time frame (last month, last 6 months, and all time). You will get a blended color aesthetic based on the colors of the album covers of your most listened songs. </h4>
         </div>
       )}
       {!accessToken && (
