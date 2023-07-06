@@ -5,6 +5,7 @@ import './App.css';
 
 const CLIENT_ID = 'f5bbf7f8ab8b4462af66203517fdc02b';
 const CLIENT_SECRET = process.env.CLIENT_SECRET_;
+console.log(CLIENT_SECRET);
 const REDIRECT_URI = 'https://chromatify.vercel.app/callback';
 const SCOPES = 'user-top-read';
 var urlCode = null;
