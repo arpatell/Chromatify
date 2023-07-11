@@ -209,11 +209,24 @@ const App = () => {
     var index = 0;
     for (const songData of topSongs) {
       if (songData.id === song.id) {
-        return arrayToHex(songColors[index])
+        return arrayToHex(songColors[index]);
       } else {
         index++;
       }
     }
+  }
+
+  const getSongURL = (song) => {
+    for (const songData of topSongs) {
+      if (songData.id === song.id) {
+        return songData.external_urls.spotify;
+      }
+    }
+  }
+
+  const handleLogout = () => {
+    setAccessToken(null);
+    window.location.reload();
   }
 
   const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}&show_dialog=true`;
@@ -322,11 +335,15 @@ const App = () => {
               {topSongs.slice(0, 5).map((song) => (
                 <div key={song.id} className="song-box" style={{backgroundColor: getColorFromSong(song)}}>
                   <div className="song-details">
-                    <p className="song-name">{song.name} - {song.artists[0].name}</p>
+                    <a href={getSongURL(song)} target="_blank" rel="noopener noreferrer" align="left" className="song-name">{song.name} - {song.artists[0].name}</a>
                   </div>
+                  <div className="spotify-img">
+                    <img src="spotify-logo.png" align="right" alt="spotify logo" className="spotify-logo" width="100px" height="30px"></img>
+                  </div>  
                 </div>
               ))}
             </div>
+            <button className="logout" onClick={() => handleLogout()}>Disconnect from Chromatify</button>
           </div>
         )}
     </div>
