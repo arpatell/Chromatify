@@ -80,7 +80,7 @@ const App = () => {
     try {
       const response = await axios ( {
         method: 'GET',
-        url: `https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=25`,
+        url: `https://api.spotify.com/v1/me/top/tracks?time_range=${timeRange}&limit=7`,
         headers: { Authorization: `Bearer ${accessToken}`},
       })
       return response.data.items;
