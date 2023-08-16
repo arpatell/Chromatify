@@ -260,6 +260,12 @@ const App = () => {
 
   return (
     <div className="App">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+      <div class="video-background">
+        <video autoPlay loop muted>
+            <source src="video.mp4" type="video/mp4"></source>
+        </video>
+      </div>
       <h1 className="app-title">Chromatify</h1>
       {!accessToken && (
         <div className="info-text">
@@ -272,7 +278,10 @@ const App = () => {
           <a href={AUTH_URL} className="spotify-login-button">
           Log in with Spotify
           </a>
-          <footer>Created by Aaron Patel</footer>
+          <div className = "footer-section">
+            <footer>Created by <a href="https://github.com/arpatell">Aaron Patel</a></footer>
+            <i class="fas fa-info-circle" title="Video background from Freepik"></i>
+          </div>
         </div>
       )}
       {accessToken && (
