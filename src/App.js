@@ -262,8 +262,9 @@ const App = () => {
     <div className="App">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
       <div class="video-background">
-        <video autoPlay={true} loop muted>
+        <video autoPlay loop muted>
             <source src="bg-video.webm" type="video/webm"></source>
+            Your browser does not support the video tag.
         </video>
       </div>
       <h1 className="app-title">Chromatify</h1>
