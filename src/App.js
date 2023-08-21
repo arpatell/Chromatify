@@ -262,7 +262,7 @@ const App = () => {
     <div className="App">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
       <div class="video-background">
-        <video autoPlay loop muted>
+        <video autoPlay={true} loop muted>
             <source src="bg-video.webm" type="video/webm"></source>
         </video>
       </div>
