@@ -156,9 +156,42 @@ const Dashboard = ({ accessToken }) => {
     });
 
     const footer = document.createElement('div');
-    footer.innerText = 'chromatify.vercel.app';
-    footer.style.fontSize = '36px';
-    footer.style.textAlign = 'center';
+    // Use flexbox for easy horizontal and vertical alignment
+    footer.style.display = 'flex';
+    footer.style.justifyContent = 'center';
+    footer.style.alignItems = 'center';
+    footer.style.gap = '15px'; // Adds space between all items
+    footer.style.fontSize = '36px'; // Set a base font size for text elements
+    
+    // Create the app link element
+    const appLink = document.createElement('a');
+    appLink.innerText = 'chromatify.vercel.app';
+    appLink.href = 'https://chromatify.vercel.app'; // Make it a clickable link
+    appLink.style.color = 'white';
+    appLink.style.textDecoration = 'underline';
+    appLink.style.fontSize = 'inherit'; // Use the footer's font size
+    
+    // Create the separator element
+    const separator = document.createElement('span');
+    separator.innerText = '|';
+    separator.style.fontSize = 'inherit';
+    
+    // Create the "Powered by" text element
+    const poweredByText = document.createElement('span');
+    poweredByText.innerText = 'Powered by';
+    poweredByText.style.fontSize = 'inherit';
+    
+    // Create the Spotify logo image element
+    const spotifyLogo = document.createElement('img');
+    spotifyLogo.src = '/spotify-logo.png'; // Use the correct path to your logo
+    spotifyLogo.alt = 'Spotify Logo';
+    spotifyLogo.style.height = '40px'; // Adjust size as needed
+    
+    // Add all elements to the footer in the correct order
+    footer.appendChild(appLink);
+    footer.appendChild(separator);
+    footer.appendChild(poweredByText);
+    footer.appendChild(spotifyLogo);
 
     contentWrapper.appendChild(header);
     contentWrapper.appendChild(auraContainer);
