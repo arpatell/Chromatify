@@ -10,13 +10,6 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <div class="video-background">
-        <video autoPlay loop muted>
-            <source src="bg-video.webm" type="video/webm"></source>
-            Your browser does not support the video tag.
-        </video>
-      </div>
       {accessToken ? <Dashboard accessToken={accessToken} /> : <Login />}
     </ThemeProvider>
   );
