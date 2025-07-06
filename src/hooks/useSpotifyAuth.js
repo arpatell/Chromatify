@@ -6,7 +6,16 @@ const CLIENT_SECRET = process.env.REACT_APP_CLIENT_SECRET;
 const REDIRECT_URI = 'https://chromatify.vercel.app/callback';
 
 export const useSpotifyAuth = () => {
-    const [accessToken, setAccessToken] = useState(localStorage.getItem('spotify_access_token'));
+    const [accessToken, setAccessToken] = useState(() => {
+        const token = localStorage.getItem('spotify_access_token');
+        const expiry = localStorage.getItem('token_expiry');
+        if (!token || !expiry || Date.now() > parseInt(expiry)) {
+            localStorage.removeItem('spotify_access_token');
+            localStorage.removeItem('token_expiry');
+            return null;
+        }
+        return token;
+    });
 
     useEffect(() => {
         const code = new URLSearchParams(window.location.search).get('code');
