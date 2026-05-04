@@ -1,71 +1,65 @@
 import React from 'react';
-import { Button, Box, Typography, Card, CardContent, Tooltip } from '@mui/material';
-
-const CLIENT_ID = 'f5bbf7f8ab8b4462af66203517fdc02b';
-const REDIRECT_URI = 'https://chromatify.vercel.app/callback';
-const SCOPES = 'user-top-read';
-const AUTH_URL = `https://accounts.spotify.com/authorize?client_id=${CLIENT_ID}&response_type=code&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(SCOPES)}&response_type=code&show_dialog=true`;
+import { Button, Box, Typography, Card, CardContent, Stack } from '@mui/material';
+import { getSpotifyAuthUrl } from '../config/spotify';
 
 const Login = () => {
-  const handleLogin = () => {
-    window.location.href = AUTH_URL;
+  const handleLogin = async () => {
+    const authUrl = await getSpotifyAuthUrl();
+    window.location.href = authUrl;
   };
 
   return (
     <Box
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        textAlign: 'center',
-        color: 'white',
-        position: 'relative',
-        zIndex: 1
+        minHeight: '100dvh',
+        px: { xs: 2, sm: 3 },
+        py: { xs: 3, sm: 6 },
+        display: 'grid',
+        placeItems: 'center',
       }}
     >
-      <video
-        autoPlay
-        muted
-        loop
-        src={'bg-video.mp4'}
-        style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: -1 }}
-      />
-      <Card sx={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', p: 4, borderRadius: 4 }}>
-        <CardContent>
-          <Typography variant="h1" component="h1" gutterBottom>
-            Chromatify
-          </Typography>
-          <Typography variant="h5" component="h2" gutterBottom sx={{ mb: 4 }}>
-            Discover the color aura of your listening on Spotify
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleLogin}
-            sx={{ backgroundColor: '#1DB954', '&:hover': { backgroundColor: '#1AA34A' }, p: '10px 20px', fontWeight: 'bold' }}
-          >
-            Login with Spotify
-          </Button>
-          <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 4, color: 'rgba(255, 255, 255, 0.7)' }}>
-            Made by{' '}
-            <a 
-              href="https://github.com/arpatell" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              style={{ color: 'inherit', textDecoration: 'underline', margin: '0 4px' }}
+      <Stack spacing={2.2} alignItems="center" sx={{ maxWidth: 780, mx: 'auto', transform: { xs: 'translateY(-3vh)', sm: 'translateY(-5vh)' } }}>
+        <Card sx={{ width: '100%', maxWidth: 620, p: { xs: 2, sm: 4 }, borderRadius: '14px' }}>
+          <CardContent>
+            <Typography
+              variant="h1"
+              component="h1"
+              gutterBottom
+              sx={{ textAlign: 'center', fontSize: { xs: '2.35rem', sm: '3.2rem', md: '3.8rem' } }}
             >
-              Aaron Patel
-            </a>
-            <Tooltip title="Video background from Pixabay" arrow>
-              <span style={{ cursor: 'pointer', fontWeight: 'bold', fontFamily: 'sans-serif' }}>
-                (i)
-              </span>
-            </Tooltip>
-          </Typography>
-        </CardContent>
-      </Card>
+              Chromatify
+            </Typography>
+            <Typography
+              variant="h5"
+              component="h2"
+              gutterBottom
+              sx={{ mb: 1.4, textAlign: 'center', fontSize: { xs: '1.02rem', sm: '1.25rem' }, color: 'text.secondary' }}
+            >
+              Music aura generation powered by your Spotify listening history.
+            </Typography>
+            <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mb: 3 }}>
+              Discover your signature color palette, preview your top tracks with album art, and share your aura across social
+              music communities.
+            </Typography>
+            <Stack spacing={1.2} alignItems="stretch">
+              <Button variant="contained" color="primary" onClick={handleLogin} sx={{ py: 1.35, fontWeight: 700 }}>
+                Login with Spotify
+              </Button>
+              <Typography variant="caption" sx={{ textAlign: 'center', color: 'text.secondary' }}>
+                Built by{' '}
+                <a
+                  href="https://github.com/arpatell"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: 'inherit', textDecoration: 'underline' }}
+                >
+                  Aaron Patel
+                </a>
+              </Typography>
+            </Stack>
+          </CardContent>
+        </Card>
+      </Stack>
     </Box>
   );
 };

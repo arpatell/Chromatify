@@ -10,7 +10,8 @@ const App = () => {
 
   return (
     <ThemeProvider theme={theme}>
-      {accessToken ? <Dashboard accessToken={accessToken} /> : <Login />}
+      <CssBaseline />
+      <div className="app-shell">{accessToken ? <Dashboard accessToken={accessToken} /> : <Login />}</div>
     </ThemeProvider>
   );
 };
