@@ -157,6 +157,110 @@ const buildShareUrl = ({ auraColor, auraName, timeRange, top3Colors, topSongs, s
   return `${window.location.origin}/share?${params.toString()}`;
 };
 
+const AuraShareCard = ({ cardRef, auraProfile, auraColor, timeRangeLabel, topSongs, auraName, top3Colors }) => (
+  <Box
+    ref={cardRef}
+    sx={{
+      width: 280,
+      maxWidth: '100%',
+      aspectRatio: '9 / 16',
+      borderRadius: '12px',
+      p: 1.8,
+      pt: '50px',
+      pb: '125px',
+      background: `${auraProfile.surfaceGradient}, linear-gradient(190deg, ${auraColor} 0%, #ffffff 100%)`,
+      color: getReadableTextColor(auraColor),
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      boxShadow: '0 12px 22px rgba(26, 36, 67, 0.2)',
+      overflow: 'hidden',
+    }}
+  >
+    <Box>
+      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+        My Chromatify
+      </Typography>
+      <Typography variant="h6" sx={{ mt: 0.4, lineHeight: 1.15 }}>
+        {timeRangeLabel}
+      </Typography>
+    </Box>
+    <Box
+      sx={{
+        my: 'auto',
+        minHeight: 88,
+        borderRadius: '10px',
+        p: 1,
+        background: 'rgba(255,255,255,0.24)',
+        border: '1px solid rgba(255,255,255,0.34)',
+      }}
+    >
+      <Stack spacing={0.7}>
+        {topSongs.slice(0, 3).map((song) => {
+          const albumArt = song?.album?.images?.[2]?.url || song?.album?.images?.[1]?.url || song?.album?.images?.[0]?.url;
+          return (
+            <Stack key={`share-${song.id}`} direction="row" spacing={0.8} alignItems="center" sx={{ minWidth: 0 }}>
+              {albumArt && (
+                <Box
+                  component="img"
+                  src={albumArt}
+                  alt={`${song.name} cover`}
+                  sx={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: '6px',
+                    objectFit: 'cover',
+                    flexShrink: 0,
+                  }}
+                />
+              )}
+              <Typography
+                variant="caption"
+                sx={{
+                  minWidth: 0,
+                  flex: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  fontWeight: 700,
+                }}
+              >
+                {song.name} - {song.artists?.[0]?.name || 'Unknown Artist'}
+              </Typography>
+              <Box
+                component="img"
+                src={SPOTIFY_LOGO_SRC}
+                alt="Spotify"
+                sx={{ height: 11, width: 'auto', display: 'block', flexShrink: 0 }}
+              />
+            </Stack>
+          );
+        })}
+      </Stack>
+    </Box>
+    <Box sx={{ mb: 0.45 }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+        {auraName}
+      </Typography>
+      <Typography variant="caption">{auraColor}</Typography>
+      <Stack direction="row" spacing={0.6} sx={{ mt: 0.8 }}>
+        {top3Colors.slice(0, 3).map((color) => (
+          <Box
+            key={color}
+            sx={{
+              width: 20,
+              height: 20,
+              borderRadius: 999,
+              border: '1px solid rgba(255,255,255,0.82)',
+              background: color,
+            }}
+          />
+        ))}
+      </Stack>
+    </Box>
+  </Box>
+);
+
 const Dashboard = ({ accessToken }) => {
   const [timeRange, setTimeRange] = useState('short_term');
   const [topSongs, setTopSongs] = useState([]);
@@ -173,7 +277,7 @@ const Dashboard = ({ accessToken }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareError, setShareError] = useState('');
-  const exportPreviewRef = useRef(null);
+  const exportRenderRef = useRef(null);
 
   const timeRangeLabel = useMemo(
     () => TIME_RANGES.find((option) => option.value === timeRange)?.label || 'Recent',
@@ -261,14 +365,15 @@ const Dashboard = ({ accessToken }) => {
   };
 
   const getExportFile = async () => {
-    if (!exportPreviewRef.current) {
+    if (!exportRenderRef.current) {
       return null;
     }
 
-    const canvas = await html2canvas(exportPreviewRef.current, {
-      scale: 2,
+    const canvas = await html2canvas(exportRenderRef.current, {
+      scale: 4,
       backgroundColor: null,
       useCORS: true,
+      logging: false,
     });
 
     const blob = await new Promise((resolve) => {
@@ -588,121 +693,20 @@ const Dashboard = ({ accessToken }) => {
         <DialogContent>
           {auraColor ? (
             <Stack spacing={1.8}>
-              <Box
-                ref={exportPreviewRef}
-                sx={{
-                  width: '100%',
-                  borderRadius: '12px',
-                  p: { xs: 2, sm: 2.6 },
-                  pt: '100px',
-                  pb: '100px',
-                  background:
-                    'linear-gradient(145deg, rgba(255,255,255,0.92) 0%, rgba(242,248,255,0.86) 48%, rgba(236,244,255,0.82) 100%)',
-                  border: '1px solid rgba(255,255,255,0.85)',
-                }}
-              >
-                <Box
-                  sx={{
-                    mx: 'auto',
-                    width: '100%',
-                    maxWidth: 280,
-                    aspectRatio: '9 / 16',
-                    borderRadius: '12px',
-                    p: 1.8,
-                    pt: '50px',
-                    pb: '125px',
-                    background: `${auraProfile.surfaceGradient}, linear-gradient(190deg, ${auraColor} 0%, #ffffff 100%)`,
-                    color: getReadableTextColor(auraColor),
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    boxShadow: '0 12px 22px rgba(26, 36, 67, 0.2)',
-                  }}
-                >
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                      My Chromatify
-                    </Typography>
-                    <Typography variant="h6" sx={{ mt: 0.4, lineHeight: 1.15 }}>
-                      {timeRangeLabel}
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      my: 'auto',
-                      minHeight: 88,
-                      borderRadius: '10px',
-                      p: 1,
-                      background: 'rgba(255,255,255,0.24)',
-                      border: '1px solid rgba(255,255,255,0.34)',
-                    }}
-                  >
-                    <Stack spacing={0.7}>
-                      {topSongs.slice(0, 3).map((song) => {
-                        const albumArt =
-                          song?.album?.images?.[2]?.url || song?.album?.images?.[1]?.url || song?.album?.images?.[0]?.url;
-                        return (
-                          <Stack key={song.id} direction="row" spacing={0.8} alignItems="center" sx={{ minWidth: 0 }}>
-                            {albumArt && (
-                              <Box
-                                component="img"
-                                src={albumArt}
-                                alt={`${song.name} cover`}
-                                sx={{
-                                  width: 24,
-                                  height: 24,
-                                  borderRadius: '6px',
-                                  objectFit: 'cover',
-                                  flexShrink: 0,
-                                }}
-                              />
-                            )}
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                minWidth: 0,
-                                flex: 1,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                                fontWeight: 700,
-                              }}
-                            >
-                              {song.name} - {song.artists?.[0]?.name || 'Unknown Artist'}
-                            </Typography>
-                            <Box
-                              component="img"
-                              src={SPOTIFY_LOGO_SRC}
-                              alt="Spotify"
-                              sx={{ height: 11, width: 'auto', display: 'block', flexShrink: 0 }}
-                            />
-                          </Stack>
-                        );
-                      })}
-                    </Stack>
-                  </Box>
-                  <Box sx={{ mb: 0.45 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                      {auraName}
-                    </Typography>
-                    <Typography variant="caption">{auraColor}</Typography>
-                    <Stack direction="row" spacing={0.6} sx={{ mt: 0.8 }}>
-                      {top3Colors.slice(0, 3).map((color) => (
-                        <Box
-                          key={color}
-                          sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: 999,
-                            border: '1px solid rgba(255,255,255,0.82)',
-                            background: color,
-                          }}
-                        />
-                      ))}
-                    </Stack>
-                  </Box>
-                </Box>
+              <Box sx={{ display: 'grid', placeItems: 'center', py: 0.4 }}>
+                <AuraShareCard
+                  auraProfile={auraProfile}
+                  auraColor={auraColor}
+                  timeRangeLabel={timeRangeLabel}
+                  topSongs={topSongs}
+                  auraName={auraName}
+                  top3Colors={top3Colors}
+                />
               </Box>
+
+              <Button variant="contained" onClick={handleNativeShare} sx={{ alignSelf: 'flex-start' }}>
+                Share
+              </Button>
 
               <Box
                 sx={{
@@ -734,14 +738,22 @@ const Dashboard = ({ accessToken }) => {
                   </Box>
                 ))}
               </Box>
-              <Button variant="contained" onClick={handleNativeShare} sx={{ alignSelf: 'flex-start' }}>
-                Share
-              </Button>
               {shareError && (
                 <Typography variant="caption" color="text.secondary">
                   {shareError}
                 </Typography>
               )}
+              <Box sx={{ position: 'fixed', left: -10000, top: 0, pointerEvents: 'none', opacity: 0 }}>
+                <AuraShareCard
+                  cardRef={exportRenderRef}
+                  auraProfile={auraProfile}
+                  auraColor={auraColor}
+                  timeRangeLabel={timeRangeLabel}
+                  topSongs={topSongs}
+                  auraName={auraName}
+                  top3Colors={top3Colors}
+                />
+              </Box>
             </Stack>
           ) : (
             <Typography variant="body2" color="text.secondary">
