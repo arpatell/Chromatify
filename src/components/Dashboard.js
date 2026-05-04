@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -277,7 +277,11 @@ const Dashboard = ({ accessToken }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareError, setShareError] = useState('');
+  const [showShareScrollCue, setShowShareScrollCue] = useState(false);
+  const [isShareButtonVisible, setIsShareButtonVisible] = useState(true);
   const exportRenderRef = useRef(null);
+  const dialogContentRef = useRef(null);
+  const shareButtonRef = useRef(null);
 
   const timeRangeLabel = useMemo(
     () => TIME_RANGES.find((option) => option.value === timeRange)?.label || 'Recent',
@@ -297,6 +301,34 @@ const Dashboard = ({ accessToken }) => {
     }
     return buildShareUrl({ auraColor, auraName, timeRange, top3Colors, topSongs, styleProfile: auraProfile });
   }, [auraColor, auraName, timeRange, top3Colors, topSongs, auraProfile]);
+
+  useEffect(() => {
+    if (!shareDialogOpen || !auraColor || !dialogContentRef.current || !shareButtonRef.current) {
+      setIsShareButtonVisible(true);
+      return undefined;
+    }
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsShareButtonVisible(entry.isIntersecting);
+      },
+      {
+        root: dialogContentRef.current,
+        threshold: 0.2,
+      }
+    );
+    observer.observe(shareButtonRef.current);
+    return () => observer.disconnect();
+  }, [shareDialogOpen, auraColor]);
+
+  useEffect(() => {
+    if (!shareDialogOpen || !auraColor || isShareButtonVisible) {
+      setShowShareScrollCue(false);
+      return undefined;
+    }
+    setShowShareScrollCue(true);
+    const cueTimeout = window.setTimeout(() => setShowShareScrollCue(false), 2800);
+    return () => window.clearTimeout(cueTimeout);
+  }, [shareDialogOpen, auraColor, isShareButtonVisible]);
 
   const handleGenerate = async () => {
     setHasGenerated(true);
@@ -690,7 +722,7 @@ const Dashboard = ({ accessToken }) => {
           </Box>
           Export & Share
         </DialogTitle>
-        <DialogContent>
+        <DialogContent ref={dialogContentRef}>
           {auraColor ? (
             <Stack spacing={1.8}>
               <Box sx={{ display: 'grid', placeItems: 'center', py: 0.4 }}>
@@ -704,7 +736,7 @@ const Dashboard = ({ accessToken }) => {
                 />
               </Box>
 
-              <Button variant="contained" onClick={handleNativeShare} sx={{ alignSelf: 'flex-start' }}>
+              <Button ref={shareButtonRef} variant="contained" onClick={handleNativeShare} sx={{ alignSelf: 'flex-start' }}>
                 Share
               </Button>
 
@@ -742,6 +774,35 @@ const Dashboard = ({ accessToken }) => {
                 <Typography variant="caption" color="text.secondary">
                   {shareError}
                 </Typography>
+              )}
+              {showShareScrollCue && (
+                <Box
+                  aria-hidden="true"
+                  sx={{
+                    display: { xs: 'grid', sm: 'none' },
+                    placeItems: 'center',
+                    position: 'fixed',
+                    right: 18,
+                    bottom: 92,
+                    width: 34,
+                    height: 34,
+                    borderRadius: '50%',
+                    border: '1px solid rgba(95,85,255,0.42)',
+                    background: 'rgba(95,85,255,0.12)',
+                    color: 'primary.main',
+                    fontWeight: 800,
+                    lineHeight: 1,
+                    pointerEvents: 'none',
+                    zIndex: 1301,
+                    '@keyframes shareCueArrowBounce': {
+                      '0%, 100%': { transform: 'translateY(0)', opacity: 0.72 },
+                      '50%': { transform: 'translateY(2px)', opacity: 1 },
+                    },
+                    animation: 'shareCueArrowBounce 1s ease-in-out infinite',
+                  }}
+                >
+                  ↓
+                </Box>
               )}
               <Box sx={{ position: 'fixed', left: -10000, top: 0, pointerEvents: 'none', opacity: 0 }}>
                 <AuraShareCard
