@@ -2,6 +2,8 @@ import React from 'react';
 import { Button, Box, Typography, Card, CardContent, Stack } from '@mui/material';
 import { getSpotifyAuthUrl } from '../config/spotify';
 
+const SPOTIFY_LOGO_SRC = '/spotify-logo.png';
+
 const Login = () => {
   const handleLogin = async () => {
     const authUrl = await getSpotifyAuthUrl();
@@ -48,6 +50,45 @@ const Login = () => {
           </CardContent>
         </Card>
       </Stack>
+      <Box
+        sx={{
+          position: 'fixed',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          bottom: { xs: 12, sm: 16 },
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 0.55,
+          zIndex: 10,
+        }}
+      >
+        <Typography
+          variant="caption"
+          sx={{
+            fontSize: '0.72rem',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            color: '#ffffff',
+            fontWeight: 700,
+            lineHeight: 1,
+          }}
+        >
+          Powered by
+        </Typography>
+        <Box
+          component="img"
+          src={SPOTIFY_LOGO_SRC}
+          alt="Spotify"
+          sx={{
+            height: 16,
+            width: 'auto',
+            display: 'block',
+            flexShrink: 0,
+            filter: 'brightness(0) invert(1)',
+            transform: 'translateY(-2px)',
+          }}
+        />
+      </Box>
       <Box
         component="a"
         href="https://github.com/arpatell"

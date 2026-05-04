@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -157,11 +157,21 @@ const buildShareUrl = ({ auraColor, auraName, timeRange, top3Colors, topSongs, s
   return `${window.location.origin}/share?${params.toString()}`;
 };
 
-const AuraShareCard = ({ cardRef, auraProfile, auraColor, timeRangeLabel, topSongs, auraName, top3Colors }) => (
+const AuraShareCard = ({
+  cardRef,
+  auraProfile,
+  auraColor,
+  timeRangeLabel,
+  topSongs,
+  auraName,
+  top3Colors,
+  width = 280,
+  contentScale = 0.5,
+}) => (
   <Box
     ref={cardRef}
     sx={{
-      width: 280,
+      width,
       maxWidth: '100%',
       aspectRatio: '9 / 16',
       borderRadius: '12px',
@@ -177,86 +187,99 @@ const AuraShareCard = ({ cardRef, auraProfile, auraColor, timeRangeLabel, topSon
       overflow: 'hidden',
     }}
   >
-    <Box>
-      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-        My Chromatify
-      </Typography>
-      <Typography variant="h6" sx={{ mt: 0.4, lineHeight: 1.15 }}>
-        {timeRangeLabel}
-      </Typography>
-    </Box>
     <Box
       sx={{
-        my: 'auto',
-        minHeight: 88,
-        borderRadius: '10px',
-        p: 1,
-        background: 'rgba(255,255,255,0.24)',
-        border: '1px solid rgba(255,255,255,0.34)',
+        width: `${100 / contentScale}%`,
+        height: `${100 / contentScale}%`,
+        transform: `scale(${contentScale})`,
+        transformOrigin: 'top left',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
       }}
     >
-      <Stack spacing={0.7}>
-        {topSongs.slice(0, 3).map((song) => {
-          const albumArt = song?.album?.images?.[2]?.url || song?.album?.images?.[1]?.url || song?.album?.images?.[0]?.url;
-          return (
-            <Stack key={`share-${song.id}`} direction="row" spacing={0.8} alignItems="center" sx={{ minWidth: 0 }}>
-              {albumArt && (
+      <Box>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+        My Chromatify
+        </Typography>
+        <Typography variant="h6" sx={{ mt: 0.4, lineHeight: 1.15 }}>
+        {timeRangeLabel}
+        </Typography>
+      </Box>
+      <Box
+        sx={{
+          my: 'auto',
+          minHeight: 88,
+          borderRadius: '10px',
+          p: 1,
+          background: 'rgba(255,255,255,0.24)',
+          border: '1px solid rgba(255,255,255,0.34)',
+        }}
+      >
+        <Stack spacing={0.7}>
+          {topSongs.slice(0, 3).map((song) => {
+            const albumArt =
+              song?.album?.images?.[2]?.url || song?.album?.images?.[1]?.url || song?.album?.images?.[0]?.url;
+            return (
+              <Stack key={`share-${song.id}`} direction="row" spacing={0.8} alignItems="center" sx={{ minWidth: 0 }}>
+                {albumArt && (
+                  <Box
+                    component="img"
+                    src={albumArt}
+                    alt={`${song.name} cover`}
+                    sx={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: '6px',
+                      objectFit: 'cover',
+                      flexShrink: 0,
+                    }}
+                  />
+                )}
+                <Typography
+                  variant="caption"
+                  sx={{
+                    minWidth: 0,
+                    flex: 1,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    fontWeight: 700,
+                  }}
+                >
+                  {song.name} - {song.artists?.[0]?.name || 'Unknown Artist'}
+                </Typography>
                 <Box
                   component="img"
-                  src={albumArt}
-                  alt={`${song.name} cover`}
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: '6px',
-                    objectFit: 'cover',
-                    flexShrink: 0,
-                  }}
+                  src={SPOTIFY_LOGO_SRC}
+                  alt="Spotify"
+                  sx={{ height: 11, width: 'auto', display: 'block', flexShrink: 0 }}
                 />
-              )}
-              <Typography
-                variant="caption"
-                sx={{
-                  minWidth: 0,
-                  flex: 1,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  fontWeight: 700,
-                }}
-              >
-                {song.name} - {song.artists?.[0]?.name || 'Unknown Artist'}
-              </Typography>
-              <Box
-                component="img"
-                src={SPOTIFY_LOGO_SRC}
-                alt="Spotify"
-                sx={{ height: 11, width: 'auto', display: 'block', flexShrink: 0 }}
-              />
-            </Stack>
-          );
-        })}
-      </Stack>
-    </Box>
-    <Box sx={{ mb: 0.45 }}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+              </Stack>
+            );
+          })}
+        </Stack>
+      </Box>
+      <Box sx={{ mb: 0.45 }}>
+        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
         {auraName}
-      </Typography>
-      <Typography variant="caption">{auraColor}</Typography>
-      <Stack direction="row" spacing={0.6} sx={{ mt: 0.8 }}>
-        {top3Colors.slice(0, 3).map((color) => (
-          <Box
-            key={color}
-            sx={{
-              width: 20,
-              height: 20,
-              borderRadius: 999,
-              border: '1px solid rgba(255,255,255,0.82)',
-              background: color,
-            }}
-          />
-        ))}
-      </Stack>
+        </Typography>
+        <Typography variant="caption">{auraColor}</Typography>
+        <Stack direction="row" spacing={0.6} sx={{ mt: 0.8 }}>
+          {top3Colors.slice(0, 3).map((color) => (
+            <Box
+              key={color}
+              sx={{
+                width: 20,
+                height: 20,
+                borderRadius: 999,
+                border: '1px solid rgba(255,255,255,0.82)',
+                background: color,
+              }}
+            />
+          ))}
+        </Stack>
+      </Box>
     </Box>
   </Box>
 );
@@ -277,11 +300,7 @@ const Dashboard = ({ accessToken }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [shareError, setShareError] = useState('');
-  const [showShareScrollCue, setShowShareScrollCue] = useState(false);
-  const [isShareButtonVisible, setIsShareButtonVisible] = useState(true);
   const exportRenderRef = useRef(null);
-  const dialogContentRef = useRef(null);
-  const shareButtonRef = useRef(null);
 
   const timeRangeLabel = useMemo(
     () => TIME_RANGES.find((option) => option.value === timeRange)?.label || 'Recent',
@@ -301,34 +320,6 @@ const Dashboard = ({ accessToken }) => {
     }
     return buildShareUrl({ auraColor, auraName, timeRange, top3Colors, topSongs, styleProfile: auraProfile });
   }, [auraColor, auraName, timeRange, top3Colors, topSongs, auraProfile]);
-
-  useEffect(() => {
-    if (!shareDialogOpen || !auraColor || !dialogContentRef.current || !shareButtonRef.current) {
-      setIsShareButtonVisible(true);
-      return undefined;
-    }
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsShareButtonVisible(entry.isIntersecting);
-      },
-      {
-        root: dialogContentRef.current,
-        threshold: 0.2,
-      }
-    );
-    observer.observe(shareButtonRef.current);
-    return () => observer.disconnect();
-  }, [shareDialogOpen, auraColor]);
-
-  useEffect(() => {
-    if (!shareDialogOpen || !auraColor || isShareButtonVisible) {
-      setShowShareScrollCue(false);
-      return undefined;
-    }
-    setShowShareScrollCue(true);
-    const cueTimeout = window.setTimeout(() => setShowShareScrollCue(false), 2800);
-    return () => window.clearTimeout(cueTimeout);
-  }, [shareDialogOpen, auraColor, isShareButtonVisible]);
 
   const handleGenerate = async () => {
     setHasGenerated(true);
@@ -715,17 +706,51 @@ const Dashboard = ({ accessToken }) => {
         )}
       </Stack>
 
-      <Dialog open={shareDialogOpen} onClose={() => setShareDialogOpen(false)} fullWidth maxWidth="md">
+      <Dialog
+        open={shareDialogOpen}
+        onClose={() => setShareDialogOpen(false)}
+        fullWidth
+        maxWidth="md"
+        PaperProps={{
+          sx: {
+            display: 'flex',
+            flexDirection: 'column',
+            height: { xs: 'min(96dvh, 740px)', sm: 'min(92dvh, 820px)' },
+            m: { xs: 1, sm: 2 },
+            overflow: 'hidden',
+          },
+        }}
+      >
         <DialogTitle>
           <Box component="span" sx={{ mr: 0.8 }}>
             ↗
           </Box>
           Export & Share
         </DialogTitle>
-        <DialogContent ref={dialogContentRef}>
+        <DialogContent
+          sx={{
+            overflow: 'hidden',
+            py: { xs: 1.2, sm: 1.6 },
+          }}
+        >
           {auraColor ? (
-            <Stack spacing={1.8}>
-              <Box sx={{ display: 'grid', placeItems: 'center', py: 0.4 }}>
+            <Stack
+              spacing={{ xs: 1.1, sm: 1.4 }}
+              sx={{
+                height: '100%',
+                minHeight: 0,
+                justifyContent: 'space-between',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'grid',
+                  placeItems: 'center',
+                  minHeight: 0,
+                  py: 0.2,
+                  flex: '1 1 auto',
+                }}
+              >
                 <AuraShareCard
                   auraProfile={auraProfile}
                   auraColor={auraColor}
@@ -733,10 +758,12 @@ const Dashboard = ({ accessToken }) => {
                   topSongs={topSongs}
                   auraName={auraName}
                   top3Colors={top3Colors}
+                  width={{ xs: 'clamp(164px, 34dvh, 236px)', sm: 'clamp(220px, 36dvh, 292px)', md: 320 }}
+                  contentScale={0.9}
                 />
               </Box>
 
-              <Button ref={shareButtonRef} variant="contained" onClick={handleNativeShare} sx={{ alignSelf: 'flex-start' }}>
+              <Button variant="contained" onClick={handleNativeShare} sx={{ alignSelf: 'flex-start' }}>
                 Share
               </Button>
 
@@ -775,35 +802,6 @@ const Dashboard = ({ accessToken }) => {
                   {shareError}
                 </Typography>
               )}
-              {showShareScrollCue && (
-                <Box
-                  aria-hidden="true"
-                  sx={{
-                    display: { xs: 'grid', sm: 'none' },
-                    placeItems: 'center',
-                    position: 'fixed',
-                    right: 18,
-                    bottom: 92,
-                    width: 34,
-                    height: 34,
-                    borderRadius: '50%',
-                    border: '1px solid rgba(95,85,255,0.42)',
-                    background: 'rgba(95,85,255,0.12)',
-                    color: 'primary.main',
-                    fontWeight: 800,
-                    lineHeight: 1,
-                    pointerEvents: 'none',
-                    zIndex: 1301,
-                    '@keyframes shareCueArrowBounce': {
-                      '0%, 100%': { transform: 'translateY(0)', opacity: 0.72 },
-                      '50%': { transform: 'translateY(2px)', opacity: 1 },
-                    },
-                    animation: 'shareCueArrowBounce 1s ease-in-out infinite',
-                  }}
-                >
-                  ↓
-                </Box>
-              )}
               <Box sx={{ position: 'fixed', left: -10000, top: 0, pointerEvents: 'none', opacity: 0 }}>
                 <AuraShareCard
                   cardRef={exportRenderRef}
@@ -813,6 +811,7 @@ const Dashboard = ({ accessToken }) => {
                   topSongs={topSongs}
                   auraName={auraName}
                   top3Colors={top3Colors}
+                  contentScale={0.9}
                 />
               </Box>
             </Stack>
@@ -823,7 +822,9 @@ const Dashboard = ({ accessToken }) => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShareDialogOpen(false)}>Close</Button>
+          <Button onClick={() => setShareDialogOpen(false)} sx={{ py: 0.4 }}>
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>
