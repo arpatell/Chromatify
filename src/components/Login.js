@@ -35,31 +35,46 @@ const Login = () => {
               gutterBottom
               sx={{ mb: 1.4, textAlign: 'center', fontSize: { xs: '1.02rem', sm: '1.25rem' }, color: 'text.secondary' }}
             >
-              Music aura generation powered by your Spotify listening history.
+              Music aura from your Spotify listening history.
             </Typography>
             <Typography variant="body2" sx={{ textAlign: 'center', color: 'text.secondary', mb: 3 }}>
-              Discover your signature color palette, preview your top tracks with album art, and share your aura across social
-              music communities.
+              Discover your current color palette, preview your top tracks with album art, and share your aura across socials.
             </Typography>
             <Stack spacing={1.2} alignItems="stretch">
               <Button variant="contained" color="primary" onClick={handleLogin} sx={{ py: 1.35, fontWeight: 700 }}>
                 Login with Spotify
               </Button>
-              <Typography variant="caption" sx={{ textAlign: 'center', color: 'text.secondary' }}>
-                Built by{' '}
-                <a
-                  href="https://github.com/arpatell"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: 'inherit', textDecoration: 'underline' }}
-                >
-                  Aaron Patel
-                </a>
-              </Typography>
             </Stack>
           </CardContent>
         </Card>
       </Stack>
+      <Box
+        component="a"
+        href="https://github.com/arpatell"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub profile"
+        sx={{
+          position: 'fixed',
+          right: { xs: 12, sm: 16 },
+          bottom: { xs: 12, sm: 16 },
+          width: 28,
+          height: 28,
+          borderRadius: '50%',
+          background: 'rgba(20, 24, 35, 0.78)',
+          display: 'grid',
+          placeItems: 'center',
+          boxShadow: '0 8px 18px rgba(20, 24, 35, 0.22)',
+          transition: 'transform 120ms ease, opacity 120ms ease',
+          opacity: 0.88,
+          '&:hover': {
+            transform: 'translateY(-1px)',
+            opacity: 1,
+          },
+        }}
+      >
+        <Box component="img" src="https://cdn.simpleicons.org/github/ffffff" alt="GitHub" sx={{ width: 14, height: 14 }} />
+      </Box>
     </Box>
   );
 };

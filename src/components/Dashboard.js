@@ -48,6 +48,8 @@ const SOCIAL_THEME = {
   whatsapp: { color: '#25d366', label: 'WhatsApp', iconSrc: 'https://cdn.simpleicons.org/whatsapp/ffffff' },
 };
 
+const SOCIAL_HINT_ORDER = ['instagram', 'tiktok', 'facebook', 'x', 'reddit', 'telegram', 'whatsapp'];
+
 const buildEmptyListenCountMap = (songs) => Object.fromEntries(songs.map((song) => [song.id, 0]));
 
 const hasPositiveListenCounts = (listenCounts) => Object.values(listenCounts || {}).some((listenCount) => Number(listenCount) > 0);
@@ -124,13 +126,6 @@ const getTopColorsByListenRanking = (songs, colors, listenCounts, limit = 3) => 
 
 const formatListenCount = (listenCount) => `${listenCount} listen${listenCount === 1 ? '' : 's'}`;
 
-const getPlatformShareMode = (platformId) => {
-  if (platformId === 'x' || platformId === 'facebook') {
-    return 'native-or-link';
-  }
-  return 'native-only';
-};
-
 const getReadableTextColor = (hexColor) => {
   if (!hexColor) {
     return '#16213a';
@@ -160,48 +155,6 @@ const buildShareUrl = ({ auraColor, auraName, timeRange, top3Colors, topSongs, s
   });
 
   return `${window.location.origin}/share?${params.toString()}`;
-};
-
-const buildSocialLinks = (caption, shareUrl) => {
-  const encodedCaption = encodeURIComponent(caption);
-  const encodedShareUrl = encodeURIComponent(shareUrl);
-  return [
-    {
-      id: 'instagram',
-      name: 'Instagram',
-      url: '',
-    },
-    {
-      id: 'tiktok',
-      name: 'TikTok',
-      url: '',
-    },
-    {
-      id: 'facebook',
-      name: 'Facebook',
-      url: `https://www.facebook.com/sharer/sharer.php?u=${encodedShareUrl}&quote=${encodedCaption}`,
-    },
-    {
-      id: 'x',
-      name: 'X (Twitter)',
-      url: `https://twitter.com/intent/tweet?text=${encodedCaption}&url=${encodedShareUrl}`,
-    },
-    {
-      id: 'reddit',
-      name: 'Reddit',
-      url: `https://www.reddit.com/submit?url=${encodedShareUrl}&title=${encodedCaption}`,
-    },
-    {
-      id: 'telegram',
-      name: 'Telegram',
-      url: `https://t.me/share/url?url=${encodedShareUrl}&text=${encodedCaption}`,
-    },
-    {
-      id: 'whatsapp',
-      name: 'WhatsApp',
-      url: `https://wa.me/?text=${encodeURIComponent(`${caption} ${shareUrl}`)}`,
-    },
-  ];
 };
 
 const Dashboard = ({ accessToken }) => {
@@ -240,13 +193,6 @@ const Dashboard = ({ accessToken }) => {
     }
     return buildShareUrl({ auraColor, auraName, timeRange, top3Colors, topSongs, styleProfile: auraProfile });
   }, [auraColor, auraName, timeRange, top3Colors, topSongs, auraProfile]);
-
-  const socialLinks = useMemo(() => {
-    if (!shareCaption || !shareUrl) {
-      return [];
-    }
-    return buildSocialLinks(shareCaption, shareUrl);
-  }, [shareCaption, shareUrl]);
 
   const handleGenerate = async () => {
     setHasGenerated(true);
@@ -336,38 +282,13 @@ const Dashboard = ({ accessToken }) => {
     return new File([blob], `chromatify-${timeRange}.png`, { type: 'image/png' });
   };
 
-  const downloadExportFile = async (file) => {
-    const objectUrl = URL.createObjectURL(file);
-    const anchor = document.createElement('a');
-    anchor.href = objectUrl;
-    anchor.download = file.name;
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-    window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1200);
-  };
-
-  const tryNativeImageShare = async (file, platformName) => {
-    if (!navigator?.share || !navigator?.canShare) {
-      return false;
-    }
-
-    const sharePayload = {
-      files: [file],
-      title: `Chromatify Aura - ${timeRangeLabel}`,
-      text: `${shareCaption} (${platformName})`,
-    };
-
-    if (!navigator.canShare(sharePayload)) {
-      return false;
-    }
-
-    await navigator.share(sharePayload);
-    return true;
-  };
-
-  const handleShareToPlatform = async (platform) => {
+  const handleNativeShare = async () => {
     setShareError('');
+    if (!navigator?.share) {
+      setShareError('Sharing is not supported on this device/browser.');
+      return;
+    }
+
     try {
       const exportFile = await getExportFile();
       if (!exportFile) {
@@ -375,20 +296,25 @@ const Dashboard = ({ accessToken }) => {
         return;
       }
 
-      const mode = getPlatformShareMode(platform.id);
-      const sharedWithFile = await tryNativeImageShare(exportFile, platform.name).catch(() => false);
-      if (sharedWithFile) {
-        return;
+      const basePayload = {
+        title: `Chromatify Aura - ${timeRangeLabel}`,
+        text: shareCaption,
+        url: shareUrl || window.location.href,
+      };
+
+      let payload = basePayload;
+      if (navigator?.canShare) {
+        const filePayload = { ...basePayload, files: [exportFile] };
+        if (navigator.canShare(filePayload)) {
+          payload = filePayload;
+        }
       }
 
-      if (mode === 'native-or-link' && platform.url) {
-        window.open(platform.url, '_blank', 'noopener,noreferrer');
-        return;
-      }
-
-      await downloadExportFile(exportFile);
-      setShareError(`Direct ${platform.name} web upload is not available. Image downloaded for manual posting.`);
+      await navigator.share(payload);
     } catch (error) {
+      if (error?.name === 'AbortError') {
+        return;
+      }
       console.error(error);
       setShareError('Share failed. Please try again.');
     }
@@ -778,64 +704,39 @@ const Dashboard = ({ accessToken }) => {
                 </Box>
               </Box>
 
-              <Box>
-                <Typography variant="subtitle2">Share to social apps</Typography>
-                <Typography variant="caption" color="text.secondary">
-                  Tap an icon to post your aura.
-                </Typography>
-              </Box>
-
               <Box
                 sx={{
                   display: 'flex',
-                  gap: 1.1,
-                  overflowX: 'auto',
+                  flexWrap: 'wrap',
+                  gap: 0.7,
                   py: 0.5,
-                  pr: 0.5,
-                  scrollbarWidth: 'thin',
                 }}
               >
-                {socialLinks.map((platform) => (
-                  <Button
-                    key={platform.id}
-                    variant="outlined"
-                    onClick={() => handleShareToPlatform(platform)}
+                {SOCIAL_HINT_ORDER.map((platformId) => (
+                  <Box
+                    key={platformId}
                     sx={{
-                      minWidth: 92,
-                      flex: '0 0 auto',
-                      px: 1.1,
-                      py: 0.8,
-                      borderRadius: '10px',
-                      borderColor: 'rgba(33,48,86,0.18)',
-                      color: 'text.primary',
+                      width: 26,
+                      height: 26,
+                      borderRadius: '50%',
+                      background: SOCIAL_THEME[platformId]?.color || '#5f55ff',
+                      display: 'grid',
+                      placeItems: 'center',
+                      opacity: 0.9,
                     }}
-                    aria-label={`Share to ${platform.name}`}
                   >
-                    <Stack spacing={0.55} alignItems="center">
-                      <Box
-                        sx={{
-                          width: 34,
-                          height: 34,
-                          borderRadius: '50%',
-                          background: SOCIAL_THEME[platform.id]?.color || '#5f55ff',
-                          display: 'grid',
-                          placeItems: 'center',
-                        }}
-                      >
-                        <Box
-                          component="img"
-                          src={SOCIAL_THEME[platform.id]?.iconSrc}
-                          alt={`${platform.name} logo`}
-                          sx={{ width: 18, height: 18, display: 'block' }}
-                        />
-                      </Box>
-                      <Typography variant="caption" sx={{ fontWeight: 700, lineHeight: 1 }}>
-                        {SOCIAL_THEME[platform.id]?.label || platform.name}
-                      </Typography>
-                    </Stack>
-                  </Button>
+                    <Box
+                      component="img"
+                      src={SOCIAL_THEME[platformId]?.iconSrc}
+                      alt={`${SOCIAL_THEME[platformId]?.label || platformId} logo`}
+                      sx={{ width: 13, height: 13, display: 'block' }}
+                    />
+                  </Box>
                 ))}
               </Box>
+              <Button variant="contained" onClick={handleNativeShare} sx={{ alignSelf: 'flex-start' }}>
+                Share
+              </Button>
               {shareError && (
                 <Typography variant="caption" color="text.secondary">
                   {shareError}
